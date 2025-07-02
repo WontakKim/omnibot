@@ -1,5 +1,4 @@
 import argparse
-import base64
 import io
 import os
 import sys
@@ -7,8 +6,7 @@ import time
 
 import uvicorn
 from PIL import Image
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, UploadFile
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, root_dir)
@@ -30,18 +28,14 @@ config = vars(args)
 app = FastAPI()
 omniparser = OmniParser(config)
 
-class ParseRequest(BaseModel):
-    base64_image: str
-
 
 @app.post("/parse")
-async def parse(request: ParseRequest):
+async def parse(file: UploadFile):
     print('start parsing...')
+    contents = await file.read()
+    image = Image.open(io.BytesIO(contents))
+
     start = time.time()
-
-    image_bytes = base64.b64decode(request.base64_image)
-    image = Image.open(io.BytesIO(image_bytes))
-
     labeled_elements = omniparser.parse(image)
     labeled_elements = [{
         'type': element.type,

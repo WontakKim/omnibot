@@ -1,0 +1,25 @@
+[project]
+name = "omnibot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "torch",
+    "torchvision",
+    "easyocr",
+    "paddlepaddle",
+    "paddleocr",
+    "ultralytics",
+    "matplotlib",
+    "gradio",
+    "pillow",
+    "numpy",
+    "timm",
+    "opencv-python",
+    "supervision",
+    "pydantic",
+    "fastapi[standard]",
+    "uvicorn",
+    "transformers==4.51.3",
+]

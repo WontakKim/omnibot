@@ -1,0 +1,12 @@
+services:
+  client-android:
+    image: android-local
+    privileged: true
+    ports:
+      - "4723:4723"  # Appium port
+      - "6080:6080"  # Web VNC port
+      - "5554:5554"  # Emulator port
+      - "5555:5555"  # ADB connection port
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+    restart: unless-stopped

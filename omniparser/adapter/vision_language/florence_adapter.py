@@ -10,12 +10,13 @@ class FlorenceAdapter(VisionLanguageAdapter):
     def __init__(
         self,
         model_path: str,
+        device: str,
         batch_size: int=128
     ):
         from transformers import AutoProcessor, AutoModelForCausalLM
         self.batch_size = batch_size
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.dtype = torch.float32 if self.device == 'cpu' else torch.float16
+        self.device = device
+        self.dtype = torch.float32
         self.processor = AutoProcessor.from_pretrained(
             'microsoft/Florence-2-base',
             trust_remote_code=True
@@ -26,7 +27,7 @@ class FlorenceAdapter(VisionLanguageAdapter):
             trust_remote_code=True
         ).to(self.device)
 
-    def gen_text(self, images: List[Image.Image], prompt: str=''):
+    def gen_text(self, images: List[Image.Image], prompt: str='') -> List[str]:
         if not prompt:
             prompt = '<CAPTION>'
 
@@ -38,7 +39,7 @@ class FlorenceAdapter(VisionLanguageAdapter):
         return gen_texts
 
     @torch.inference_mode()
-    def _batch_gen_text(self, images: List[Image.Image], prompt: str):
+    def _batch_gen_text(self, images: List[Image.Image], prompt: str) -> List[str]:
         inputs = self.processor(
             images=images,
             text=[prompt] * len(images),

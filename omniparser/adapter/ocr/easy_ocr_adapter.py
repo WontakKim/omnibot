@@ -2,6 +2,7 @@ from typing import List, Union
 
 import easyocr
 import numpy as np
+import torch
 from PIL import Image
 
 from omniparser.adapter.ocr.base import OCRAdapter, OCRResult
@@ -11,9 +12,10 @@ class EasyOCRAdapter(OCRAdapter):
     def __init__(
         self,
         lang_list: List[str],
-        gpu: bool = True,
+        device: str
     ):
-        self.reader = easyocr.Reader(lang_list, gpu)
+        self.device = device
+        self.reader = easyocr.Reader(lang_list)
 
     def extract_text(
         self,
@@ -34,7 +36,10 @@ class EasyOCRAdapter(OCRAdapter):
         result = self.reader.readtext(image_np)
         format_func = get_xyxy if output_format == 'xyxy' else get_xywh
         bboxes, texts = zip(*[(format_func(item[0]), item[1]) for item in result]) if result else ([], [])
-        return OCRResult(texts, np.asarray(bboxes, dtype=np.float32))
+        return OCRResult(
+            texts=texts,
+            bboxes=torch.tensor(bboxes, dtype=torch.float32, device=self.device)
+        )
 
 def get_xyxy(value):
     x, y, xp, yp = value[0][0], value[0][1], value[2][0], value[2][1]

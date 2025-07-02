@@ -20,6 +20,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='omniparser api')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Host for the API')
     parser.add_argument('--port', type=int, default=8000, help='Port for the API')
+    parser.add_argument('--device', type=str, default='cuda', help='Device to run the model')
     arguments = parser.parse_args()
     return arguments
 
@@ -41,11 +42,11 @@ async def parse(request: ParseRequest):
     image_bytes = base64.b64decode(request.base64_image)
     image = Image.open(io.BytesIO(image_bytes))
 
-    annotated_image, labeled_elements = omniparser.parse(image)
+    labeled_elements = omniparser.parse(image)
     labeled_elements = [{
         'type': element.type,
         'content': element.content,
-        'bbox': element.bbox.tolist(),
+        'bbox': element.bbox,
         'interactivity': element.interactivity,
         'source': element.source
     } for element in labeled_elements]

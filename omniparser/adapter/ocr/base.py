@@ -1,21 +1,23 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Union, List
 
-import numpy as np
 from PIL.Image import Image
+from pydantic import BaseModel
+from torch import Tensor
 
 
-@dataclass
-class OCRResult:
+class OCRResult(BaseModel):
     texts: List[str]
-    bboxes: np.ndarray
+    bboxes: Tensor
+
+    class Config:
+        arbitrary_types_allowed = True
 
 class OCRAdapter(ABC):
     @abstractmethod
     def extract_text(
         self,
         image: Union[str, Image],
-        output_format: str='xyxy'
+        output_format: str
     ) -> OCRResult:
         pass

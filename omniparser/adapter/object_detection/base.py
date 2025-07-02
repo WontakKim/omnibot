@@ -1,15 +1,17 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Union
 
-import numpy as np
 from PIL import Image
+from pydantic import BaseModel
+from torch import Tensor
 
 
-@dataclass
-class ObjectDetectionResult:
-    bboxes: np.ndarray
-    confidences: np.ndarray
+class ObjectDetectionResult(BaseModel):
+    bboxes: Tensor
+    confidences: Tensor
+
+    class Config:
+        arbitrary_types_allowed = True
 
 class ObjectDetectionAdapter(ABC):
     @abstractmethod
@@ -18,6 +20,6 @@ class ObjectDetectionAdapter(ABC):
         image: Union[str, Image.Image],
         box_threshold: float,
         iou_threshold: float,
-        output_format: str='xyxy'
+        output_format: str
     ) -> ObjectDetectionResult:
         pass

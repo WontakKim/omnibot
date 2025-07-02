@@ -3,26 +3,32 @@ from typing import List, Union
 import cv2
 import numpy as np
 import supervision as sv
+import torch
 from PIL import Image
+from torch import Tensor
 from torchvision.transforms.v2 import ToPILImage
 
 from omniparser.data.som import SOM
 from omniparser.util.box_annotator import BoxAnnotator
 
 
-def get_cropped_image(image: Union[str, Image.Image], bboxes, image_size=None):
+def get_cropped_image(image: Union[str, Image.Image], bboxes: Tensor, image_size=None):
     if isinstance(image, str):
         image = Image.open(image)
 
     to_pil = ToPILImage()
-    image = np.asarray(image)
-    h, w = image.shape[:2]
+    image_np = np.asarray(image)
+    h, w = image_np.shape[:2]
 
-    coords = (bboxes * np.array([w, h, w, h])).astype(int)
+    whwh = torch.tensor([w, h, w, h], dtype=torch.float32, device=bboxes.device)
+    coords = (bboxes * whwh).int()
+    coords = coords.cpu()
+
     cropped_images = []
 
-    for x_min, y_min, x_max, y_max in coords:
-        cropped_image = image[y_min:y_max, x_min:x_max]
+    for bbox in coords:
+        x_min, y_min, x_max, y_max = bbox.tolist()
+        cropped_image = image_np[y_min:y_max, x_min:x_max]
         if image_size is not None:
             cropped_image = cv2.resize(cropped_image, image_size)
         cropped_images.append(to_pil(cropped_image))
@@ -31,10 +37,6 @@ def get_cropped_image(image: Union[str, Image.Image], bboxes, image_size=None):
 def create_annotated_image(image: Union[str, Image.Image], labeled_elements: List[SOM]):
     if isinstance(image, str):
         image = Image.open(image)
-
-    def annotated_text(i, text):
-        text = text if len(text) <= 10 else text[:7] + '...'
-        return f'{i}: {text}'
 
     image = image.convert('RGB')
     image = np.asarray(image)
@@ -52,7 +54,7 @@ def create_annotated_image(image: Union[str, Image.Image], labeled_elements: Lis
     bboxes = bboxes * np.array([w, h, w, h])
     detections = sv.Detections(bboxes)
 
-    labels = [annotated_text(i, element.content) for i, element in enumerate(labeled_elements)]
+    labels = [str(i) for i, _ in enumerate(labeled_elements)]
 
     annotator = BoxAnnotator(**draw_bbox_config)
     annotated_frame = image.copy()

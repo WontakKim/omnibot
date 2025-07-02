@@ -9,9 +9,11 @@ from omniparser.adapter.object_detection.base import ObjectDetectionAdapter, Obj
 class YoloAdapter(ObjectDetectionAdapter):
     def __init__(
         self,
-        model_path: str
+        model_path: str,
+        device: str
     ):
         self.model = YOLO(model_path)
+        self.device = device
 
     def predict(
         self,
@@ -23,9 +25,10 @@ class YoloAdapter(ObjectDetectionAdapter):
         result = self.model.predict(
             source=image,
             conf=box_threshold,
-            iou=iou_threshold
+            iou=iou_threshold,
+            device=self.device
         )[0]
         return ObjectDetectionResult(
-            bboxes=(result.boxes.xyxy if output_format == 'xyxy' else result.boxes.xywh).cpu().numpy(),
-            confidences=result[0].boxes.conf.cpu().numpy(),
+            bboxes=(result.boxes.xyxy if output_format == 'xyxy' else result.boxes.xywh),
+            confidences=result[0].boxes.conf,
         )

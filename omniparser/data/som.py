@@ -1,13 +1,21 @@
-from dataclasses import dataclass
+from typing import List, Union
 
-import numpy as np
+from pydantic import BaseModel
+from torch import Tensor
 
 
 # SOM: set of mark
-@dataclass
-class SOM:
+class SOM(BaseModel):
     type: str
-    bbox: np.ndarray
+    bbox: Union[List[float], Tensor]
     interactivity: bool
     content: str | None
     source: str
+
+    def safe(self):
+        if isinstance(self.bbox, Tensor):
+            self.bbox = self.bbox.detach().cpu().tolist()
+        return self
+
+    class Config:
+        arbitrary_types_allowed = True

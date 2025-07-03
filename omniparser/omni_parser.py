@@ -14,7 +14,7 @@ from omniparser.util.image_utils import create_annotated_image, get_cropped_imag
 class OmniParser:
     def __init__(self, config: Dict):
         self.config = config
-        self.device = 'cuda' if config['device'] == 'cuda' and torch.cuda.is_available() else 'cpu'
+        self.device = config['device'] if config['device'].startswith('cuda') and torch.cuda.is_available() else 'cpu'
 
         self.ocr_adapter = EasyOCRAdapter(['en', 'ko'], self.device)
         self.object_detection_adapter = YoloAdapter('../weights/icon_detect/model.pt', self.device)

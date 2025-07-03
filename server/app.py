@@ -17,7 +17,7 @@ from omniparser.omni_parser import OmniParser
 def parse_arguments():
     parser = argparse.ArgumentParser(description='omniparser api')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Host for the API')
-    parser.add_argument('--port', type=int, default=8000, help='Port for the API')
+    parser.add_argument('--port', type=int, default=9000, help='Port for the API')
     parser.add_argument('--device', type=str, default='cuda', help='Device to run the model')
     arguments = parser.parse_args()
     return arguments
@@ -48,6 +48,9 @@ async def parse(file: UploadFile):
     print('time:', latency)
     return {"content": labeled_elements, 'latency': latency}
 
+@app.get("/probe")
+async def probe():
+    return {'status': 'ok'}
 
 if __name__ == "__main__":
     uvicorn.run(app, host=args.host, port=args.port)

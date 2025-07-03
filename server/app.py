@@ -17,7 +17,7 @@ from omniparser.omni_parser import OmniParser
 def parse_arguments():
     parser = argparse.ArgumentParser(description='omniparser api')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Host for the API')
-    parser.add_argument('--port', type=int, default=9000, help='Port for the API')
+    parser.add_argument('--port', type=int, default=30005, help='Port for the API')
     parser.add_argument('--device', type=str, default='cuda', help='Device to run the model')
     arguments = parser.parse_args()
     return arguments
@@ -34,7 +34,6 @@ async def parse(file: UploadFile):
     print('start parsing...')
     contents = await file.read()
     image = Image.open(io.BytesIO(contents))
-    w, h = image.size
 
     start = time.time()
     labeled_elements = omniparser.parse(image)
@@ -47,7 +46,7 @@ async def parse(file: UploadFile):
     } for element in labeled_elements]
     latency = time.time() - start
     print('time:', latency)
-    return {"content": labeled_elements, 'width': w, 'height': h, 'latency': latency}
+    return {"content": labeled_elements, 'latency': latency}
 
 @app.get("/probe")
 async def probe():

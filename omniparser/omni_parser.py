@@ -1,7 +1,12 @@
+import os
+import sys
 from typing import Union, List, Dict
 
 import torch
 from PIL import Image
+
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, root_dir)
 
 from omniparser.adapter.object_detection.yolo_adapter import YoloAdapter
 from omniparser.adapter.ocr.easy_ocr_adapter import EasyOCRAdapter
@@ -17,8 +22,8 @@ class OmniParser:
         self.device = config['device'] if config['device'].startswith('cuda') and torch.cuda.is_available() else 'cpu'
 
         self.ocr_adapter = EasyOCRAdapter(['en', 'ko'], self.device)
-        self.object_detection_adapter = YoloAdapter('../weights/icon_detect/model.pt', self.device)
-        self.vision_language_adapter = FlorenceAdapter('../weights/icon_caption_florence', self.device)
+        self.object_detection_adapter = YoloAdapter('weights/icon_detect/model.pt', self.device)
+        self.vision_language_adapter = FlorenceAdapter('weights/icon_caption_florence', self.device)
 
     def parse(self, image: Union[str, Image.Image]) -> List[SOM]:
         if isinstance(image, str):

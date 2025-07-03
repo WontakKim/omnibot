@@ -2,7 +2,7 @@
 
 set -e
 
-dest_dir="../weights"
+dest_dir="weights"
 files=(
     "icon_detect/train_args.yaml"
     "icon_detect/model.pt"

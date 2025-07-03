@@ -34,6 +34,7 @@ async def parse(file: UploadFile):
     print('start parsing...')
     contents = await file.read()
     image = Image.open(io.BytesIO(contents))
+    w, h = image.size
 
     start = time.time()
     labeled_elements = omniparser.parse(image)
@@ -46,7 +47,7 @@ async def parse(file: UploadFile):
     } for element in labeled_elements]
     latency = time.time() - start
     print('time:', latency)
-    return {"content": labeled_elements, 'latency': latency}
+    return {"content": labeled_elements, 'width': w, 'height': h, 'latency': latency}
 
 @app.get("/probe")
 async def probe():

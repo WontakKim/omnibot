@@ -1,3 +1,4 @@
 ### Omnibot
 
-This is the refactor https://github.com/microsoft/OmniParser project
+This is the project that refactor https://github.com/microsoft/OmniParser project code.
+
